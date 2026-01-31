@@ -6,7 +6,7 @@ use OTPHP\TOTP;
 
 class roundcube_2fa extends rcube_plugin
 {
-    public $task = 'login|settings';
+    public $task = 'settings';
 
     function init()
     {
