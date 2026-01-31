@@ -211,8 +211,14 @@ class roundcube_2fa extends rcube_plugin
             return null;
         }
 
-        return $db->fetch_assoc($result);
+        // Use fetch instead of fetch_assoc for SQLite compatibility
+        if ($db instanceof rcube_db_sqlite) {
+            return $db->fetch($result, true); // true = associative array
+        } else {
+            return $db->fetch_assoc($result);
+        }
     }
+
 
     function update_user($fields)
     {
