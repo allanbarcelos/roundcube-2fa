@@ -10,6 +10,8 @@ class roundcube_2fa extends rcube_plugin
 
     function init()
     {
+        rcube::write_log('errors', '!!! PLUGIN 2FA TENTANDO INICIAR !!!');
+        
         $this->load_config();
         $this->add_texts('localization/'); 
 
