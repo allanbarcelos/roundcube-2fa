@@ -212,19 +212,33 @@ class roundcube_2fa extends rcube_plugin
             return null;
         }
 
-        // Use fetch_row or fetch_assoc depending on the driver
-        return $db->fetch_row($result, true); // true = associative array
+        // fetch_assoc() returns the associative array directly
+        return $db->fetch_assoc($result); 
     }
-
-
 
     function update_user($fields)
     {
-        $db = rcube::get_instance()->get_dbh();
-        $user = rcube::get_instance()->get_user_name();
-        foreach ($fields as $k => $v) {
-            $db->query("UPDATE users SET $k=? WHERE username=?", [$v, $user]);
+        $rcmail = rcube::get_instance();
+        $db = $rcmail->get_dbh();
+        $user = $rcmail->get_user_name();
+
+        if (empty($fields)) {
+            return;
         }
+
+        $set_clauses = [];
+        $params = [];
+
+        foreach ($fields as $col => $value) {
+            $set_clauses[] = "$col = ?";
+            $params[] = $value;
+        }
+
+        // Add the username for the WHERE clause
+        $params[] = $user;
+        
+        $query = "UPDATE users SET " . implode(', ', $set_clauses) . " WHERE username = ?";
+        $db->query($query, $params);
     }
 
     function generate_secret()
