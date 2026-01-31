@@ -52,7 +52,7 @@ class roundcube_2fa extends rcube_plugin
 
     function show_form()
     {
-        rcube::get_instance()->output->send('roundcube_2fa.roundcube_2fa');
+        rcube::get_instance()->output->send('roundcube_2fa');
     }
 
     /* ================= SETUP ================= */
@@ -65,7 +65,7 @@ class roundcube_2fa extends rcube_plugin
         $qr = $this->get_qr($rcmail->get_user_name(), $secret);
 
         $rcmail->output->assign('qr', $qr);
-        $rcmail->output->send('roundcube_2fa.setup');
+        $rcmail->output->send('setup');
     }
 
     function disable()
@@ -75,7 +75,7 @@ class roundcube_2fa extends rcube_plugin
             'twofa_secret' => null,
             'twofa_backup_codes' => null
         ]);
-        rcube::get_instance()->output->send('roundcube_2fa.disable');
+        rcube::get_instance()->output->send('disable');
     }
 
     /* ================= TOTP ================= */
