@@ -1,8 +1,6 @@
 <?php
 require_once __DIR__ . '/vendor/autoload.php';
 
-use rcube;
-use rcube_plugin;
 use Endroid\QrCode\Builder\Builder;
 use OTPHP\TOTP;
 
