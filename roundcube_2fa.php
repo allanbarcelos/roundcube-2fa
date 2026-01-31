@@ -110,6 +110,29 @@ class roundcube_2fa extends rcube_plugin
         $rcmail->output->send('setup');
     }
 
+    function verify_and_enable()
+    {
+        $rcmail = rcube::get_instance();
+        $code = rcube_utils::get_input_value('_code', rcube_utils::INPUT_POST);
+        $secret = $_SESSION['2fa_tmp_secret'];
+
+        if ($this->verify_totp($secret, $code)) {
+            $backup_codes = $this->generate_backup_codes();
+            $this->update_user([
+                'twofa_enabled' => 1,
+                'twofa_secret' => $secret,
+                'twofa_backup_codes' => json_encode($backup_codes)
+            ]);
+            unset($_SESSION['2fa_tmp_secret']);            
+            $rcmail->output->show_message($this->gettext('2fa_enabled_success'), 'confirmation');
+        } else {
+            $rcmail->output->show_message($this->gettext('invalid_verification_code'), 'error');
+        }
+        
+        $rcmail->overwrite_action('plugin.roundcube_2fa-settings');
+        $this->settings_page();
+    }
+
     function disable()
     {
         $this->update_user([
@@ -117,7 +140,8 @@ class roundcube_2fa extends rcube_plugin
             'twofa_secret' => null,
             'twofa_backup_codes' => null
         ]);
-        rcube::get_instance()->output->send('disable');
+        rcube::get_instance()->output->show_message($this->gettext('2fa_disabled_success'), 'confirmation');
+        rcube_utils::redirect(['_task' => 'settings', '_action' => 'preferences', '_section' => '2fa_section']);
     }
 
     function settings_page() {
