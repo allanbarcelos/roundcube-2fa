@@ -31,7 +31,7 @@ class roundcube_2fa extends rcube_plugin
 
     function preferences_sections($args)
     {
-        $args[] = [
+        $args['list']['2fa_section'] = [
             'id' => '2fa_section',
             'section' => '2fa_section',
             'title'   => $this->gettext('roundcube_2fa_title')
