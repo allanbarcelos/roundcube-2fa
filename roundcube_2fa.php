@@ -19,6 +19,15 @@ class roundcube_2fa extends rcube_plugin
         $this->task = 'login|settings';
         $this->register_action('plugin.roundcube_2fa-settings', [$this, 'settings_page']);
 
+
+        $this->add_hook('preferences_sections', function($args) {
+            $args[] = [
+                'section' => '2fa',              
+                'title'   => $this->gettext('roundcube_2fa_title')
+            ];
+            return $args;
+        });
+
         $this->setup_database();
     }
 
@@ -77,6 +86,12 @@ class roundcube_2fa extends rcube_plugin
         ]);
         rcube::get_instance()->output->send('disable');
     }
+
+    function settings_page() {
+        $rcmail = rcube::get_instance();
+        $rcmail->output->send('roundcube_2fa');
+    }
+
 
     /* ================= TOTP ================= */
     function verify_totp($secret, $code)
