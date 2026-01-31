@@ -11,7 +11,7 @@ class roundcube_2fa extends rcube_plugin
     function init()
     {
         $this->load_config();
-        $this->add_texts('localization/'); // Ajustado para o padrão do Roundcube
+        $this->add_texts('localization/'); 
 
         // Hooks
         $this->add_hook('authenticate', [$this, 'check_2fa']);
@@ -202,8 +202,16 @@ class roundcube_2fa extends rcube_plugin
     /* ================= HELPERS ================= */
     function get_user_data($user)
     {
-        $db = rcube::get_instance()->get_dbh();
-        return $db->fetchAssoc("SELECT * FROM users WHERE username=?", [$user]);
+        $rcmail = rcube::get_instance();
+        $db = $rcmail->get_dbh();
+
+        $result = $db->query("SELECT * FROM users WHERE username=?", [$user]);
+
+        if (!$result) {
+            return null;
+        }
+
+        return $db->fetch_assoc($result);
     }
 
     function update_user($fields)
