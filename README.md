@@ -1,4 +1,4 @@
-# 2FA Plugin
+# Roudcube 2FA Plugin
 
 Two-Factor Authentication plugin for Roundcube.
 
@@ -11,7 +11,7 @@ Two-Factor Authentication plugin for Roundcube.
 
 ## Installation
 
-1. Clone or extract to `plugins/2fa/`
+1. Clone or extract to `plugins/roundcube-2fa/`
 2. Enable the plugin in Roundcube config
 3. Run database migrations if needed
 
@@ -20,9 +20,9 @@ Two-Factor Authentication plugin for Roundcube.
 Add to `config/config.inc.php`:
 
 ```php
-$config['plugins'] = array('2fa');
+$config['plugins'] = array('roundcube-2fa');
 ```
 
 ## Usage
 
-Users can enable 2FA in their account settings and scan the QR code with an authenticator app.
+Users can enable Roudcube 2FA in their account settings and scan the QR code with an authenticator app.

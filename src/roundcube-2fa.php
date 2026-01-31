@@ -8,7 +8,7 @@ use rcube_plugin;
 use Endroid\QrCode\Builder\Builder;
 use OTPHP\TOTP;
 
-class TwoFactor extends rcube_plugin
+class roundcube_2fa extends rcube_plugin
 {
     public $task = 'login|settings';
 
@@ -17,11 +17,11 @@ class TwoFactor extends rcube_plugin
         $this->load_config();
         $this->add_texts('../locale/');
         $this->add_hook('authenticate', [$this, 'check_2fa']);
-        $this->register_action('plugin.twofactor-setup', [$this, 'setup']);
-        $this->register_action('plugin.twofactor-disable', [$this, 'disable']);
+        $this->register_action('plugin.roundcube_2fa-setup', [$this, 'setup']);
+        $this->register_action('plugin.roundcube_2fa-disable', [$this, 'disable']);
 
         $this->task = 'login|settings';
-        $this->register_action('plugin.twofactor-settings', [$this, 'settings_page']);
+        $this->register_action('plugin.roundcube_2fa-settings', [$this, 'settings_page']);
 
         $this->setup_database();
     }
@@ -36,27 +36,27 @@ class TwoFactor extends rcube_plugin
         if (!$data || !$data['twofa_enabled']) return $args;
 
         // Se o token não foi enviado ainda
-        if (empty($_POST['twofactor_code'])) {
+        if (empty($_POST['roundcube_2fa_code'])) {
             $this->show_form();
             exit;
         }
 
-        if ($this->verify_totp($data['twofa_secret'], $_POST['twofactor_code'])) {
+        if ($this->verify_totp($data['twofa_secret'], $_POST['roundcube_2fa_code'])) {
             return $args;
         }
 
-        if ($this->verify_backup($_POST['twofactor_code'], $data)) {
+        if ($this->verify_backup($_POST['roundcube_2fa_code'], $data)) {
             return $args;
         }
 
-        $rcmail->output->show_message($this->gettext('twofactor_invalid'), 'error');
+        $rcmail->output->show_message($this->gettext('roundcube_2fa_invalid'), 'error');
         $this->show_form();
         exit;
     }
 
     function show_form()
     {
-        rcube::get_instance()->output->send('twofactor.twofactor');
+        rcube::get_instance()->output->send('roundcube_2fa.roundcube_2fa');
     }
 
     /* ================= SETUP ================= */
@@ -69,7 +69,7 @@ class TwoFactor extends rcube_plugin
         $qr = $this->get_qr($rcmail->get_user_name(), $secret);
 
         $rcmail->output->assign('qr', $qr);
-        $rcmail->output->send('twofactor.setup');
+        $rcmail->output->send('roundcube_2fa.setup');
     }
 
     function disable()
@@ -79,7 +79,7 @@ class TwoFactor extends rcube_plugin
             'twofa_secret' => null,
             'twofa_backup_codes' => null
         ]);
-        rcube::get_instance()->output->send('twofactor.disable');
+        rcube::get_instance()->output->send('roundcube_2fa.disable');
     }
 
     /* ================= TOTP ================= */
