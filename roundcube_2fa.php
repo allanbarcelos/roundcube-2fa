@@ -11,7 +11,7 @@ class roundcube_2fa extends rcube_plugin
     function init()
     {
         rcube::write_log('errors', '!!! PLUGIN 2FA TENTANDO INICIAR !!!');
-        
+
         $this->load_config();
         $this->add_texts('localization/'); 
 
@@ -38,6 +38,9 @@ class roundcube_2fa extends rcube_plugin
             'section' => '2fa_section',
             'title'   => $this->gettext('roundcube_2fa_title')
         ];
+
+        rcube::write_log('errors', "CONTEÚDO DE LIST: " . print_r($args['list'], true));
+
         return $args;
     }
 
