@@ -205,19 +205,17 @@ class roundcube_2fa extends rcube_plugin
         $rcmail = rcube::get_instance();
         $db = $rcmail->get_dbh();
 
-        $result = $db->query("SELECT * FROM users WHERE username=?", [$user]);
+        // Prepare the query
+        $result = $db->query("SELECT * FROM users WHERE username = ?", [$user]);
 
         if (!$result) {
             return null;
         }
 
-        // Use fetch instead of fetch_assoc for SQLite compatibility
-        if ($db instanceof rcube_db_sqlite) {
-            return $db->fetch($result, true); // true = associative array
-        } else {
-            return $db->fetch_assoc($result);
-        }
+        // Use fetch_row or fetch_assoc depending on the driver
+        return $db->fetch_row($result, true); // true = associative array
     }
+
 
 
     function update_user($fields)
