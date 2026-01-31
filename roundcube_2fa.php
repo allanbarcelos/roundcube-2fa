@@ -153,8 +153,9 @@ class roundcube_2fa extends rcube_plugin
 
     private function setup_database()
     {
-        $rcmail = \rcube::get_instance();
+        $rcmail = rcube::get_instance();
         $dbh = $rcmail->get_dbh();
+        $driver = $dbh->db_provider; // mysql / sqlite / pgsql
 
         $columns = [
             'twofa_secret' => "VARCHAR(64)",
@@ -165,11 +166,26 @@ class roundcube_2fa extends rcube_plugin
         $table = "users";
 
         foreach ($columns as $col => $type) {
-            $exists = $dbh->fetchOne("SHOW COLUMNS FROM `$table` LIKE ?", [$col]);
+            if ($driver === 'sqlite') {
+                // SQLite: consulta PRAGMA
+                $res = $dbh->query("PRAGMA table_info($table)");
+                $exists = false;
+                while ($row = $dbh->fetch_assoc($res)) {
+                    if ($row['name'] === $col) {
+                        $exists = true;
+                        break;
+                    }
+                }
+            } else {
+                // MySQL / MariaDB
+                $exists = $dbh->fetchOne("SHOW COLUMNS FROM `$table` LIKE ?", [$col]);
+            }
+
             if (!$exists) {
                 $dbh->query("ALTER TABLE `$table` ADD COLUMN `$col` $type");
             }
         }
     }
+
 
 }
