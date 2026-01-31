@@ -1,0 +1,22 @@
+{
+    "name": "allanbarcelos/roundcube-2fa",
+    "description": "Plugin de autenticação em 2 fatores (2FA) para Roundcube, compatível com Google Authenticator, Microsoft Authenticator e outros.",
+    "type": "roundcube-plugin",
+    "require": {
+        "php": ">=7.4",
+        "endroid/qr-code": "^4.0",
+        "spomky-labs/otphp": "^11.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "TwoFactor\\": "src/"
+        }
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Allan Barcelos",
+            "email": "allan@barcelos.dev"
+        }
+    ]
+}

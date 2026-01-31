@@ -1,0 +1,5 @@
+<?php
+$config['twofactor_force'] = true;          
+$config['twofactor_backup_codes'] = 6;      
+$config['twofactor_qr_size'] = 200;         
+$config['twofactor_issuer'] = 'Roundcube';
