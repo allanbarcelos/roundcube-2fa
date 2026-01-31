@@ -11,24 +11,57 @@ class roundcube_2fa extends rcube_plugin
     function init()
     {
         $this->load_config();
-        $this->add_texts('../locale/');
-        $this->add_hook('authenticate', [$this, 'check_2fa']);
-        $this->register_action('plugin.roundcube_2fa-setup', [$this, 'setup']);
-        $this->register_action('plugin.roundcube_2fa-disable', [$this, 'disable']);
+        $this->add_texts('localization/'); // Ajustado para o padrão do Roundcube
 
-        $this->task = 'login|settings';
+        // Hooks
+        $this->add_hook('authenticate', [$this, 'check_2fa']);
+        $this->add_hook('preferences_sections', [$this, 'preferences_sections']);
+        $this->add_hook('preferences_list', [$this, 'preferences_list']);
+
+        // Actions
+        $this->register_action('plugin.roundcube_2fa-setup', [$this, 'setup']);
+        $this->register_action('plugin.roundcube_2fa-verify', [$this, 'verify_and_enable']);
+        $this->register_action('plugin.roundcube_2fa-disable', [$this, 'disable']);
         $this->register_action('plugin.roundcube_2fa-settings', [$this, 'settings_page']);
 
-
-        $this->add_hook('preferences_sections', function($args) {
-            $args[] = [
-                'section' => '2fa',              
-                'title'   => $this->gettext('roundcube_2fa_title')
-            ];
-            return $args;
-        });
-
         $this->setup_database();
+    }
+
+    /* ================= SEÇÃO DE CONFIGURAÇÕES ================= */
+
+    function preferences_sections($args)
+    {
+        $args[] = [
+            'id' => '2fa_section',
+            'section' => '2fa_section',
+            'title'   => $this->gettext('roundcube_2fa_title')
+        ];
+        return $args;
+    }
+
+    function preferences_list($args)
+    {
+        if ($args['section'] == '2fa_section') {
+            $rcmail = rcube::get_instance();
+            $user_data = $this->get_user_data($rcmail->get_user_name());
+            $enabled = !empty($user_data['twofa_enabled']);
+
+            $args['blocks']['main']['name'] = $this->gettext('roundcube_2fa_title');
+
+            if ($enabled) {
+                $status = '<span style="color:green; font-weight:bold;">' . $this->gettext('enabled') . '</span>';
+                $button = '<p><a href="./?_task=settings&_action=plugin.roundcube_2fa-disable" class="button mainaction">' . $this->gettext('disable_2fa') . '</a></p>';
+            } else {
+                $status = '<span style="color:red; font-weight:bold;">' . $this->gettext('disabled') . '</span>';
+                $button = '<p><a href="./?_task=settings&_action=plugin.roundcube_2fa-setup" class="button mainaction">' . $this->gettext('setup_2fa') . '</a></p>';
+            }
+
+            $args['blocks']['main']['options']['status'] = [
+                'title' => $this->gettext('status'),
+                'content' => $status . $button
+            ];
+        }
+        return $args;
     }
 
     /* ================= LOGIN ================= */
