@@ -21,6 +21,7 @@ class roundcube_2fa extends rcube_plugin
         $this->add_hook('settings_actions', [$this, 'settings_actions']);
 
         // Actions
+        $this->register_action('plugin.roundcube_2fa', [$this, 'settings_page']);
         $this->register_action('plugin.roundcube_2fa-setup', [$this, 'setup']);
         $this->register_action('plugin.roundcube_2fa-verify', [$this, 'verify_and_enable']);
         $this->register_action('plugin.roundcube_2fa-disable', [$this, 'disable']);
@@ -35,10 +36,10 @@ class roundcube_2fa extends rcube_plugin
     {
         // register as settings action
         $args['actions'][] = [
-            'action' => 'plugin.roundcube_2fa',
+            'action' => 'roundcube_2fa',
             'class'  => 'roundcube_2fa',
             'label'  => 'roundcube_2fa',
-            'title'  => 'roundcube_2fa',
+            'title'  => 'roundcube_2fa_title',
             'domain' => 'roundcube_2fa',
         ];
 
