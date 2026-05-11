@@ -1,0 +1,58 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  tests:
+    name: PHP ${{ matrix.php-version }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php-version: ['8.1', '8.2', '8.3']
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: pdo, pdo_sqlite
+          coverage: xdebug
+          ini-values: error_reporting=E_ALL
+
+      - name: Validate composer.json
+        run: composer validate --strict
+
+      - name: Cache Composer packages
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: ${{ runner.os }}-php-${{ matrix.php-version }}-${{ hashFiles('composer.json') }}
+          restore-keys: |
+            ${{ runner.os }}-php-${{ matrix.php-version }}-
+
+      - name: Install dependencies
+        run: composer install --no-progress --prefer-dist --optimize-autoloader
+
+      - name: Run test suite
+        run: vendor/bin/phpunit --testdox
+
+      - name: Run test suite with coverage (PHP 8.3 only)
+        if: matrix.php-version == '8.3'
+        run: vendor/bin/phpunit --coverage-text --coverage-clover=coverage.xml
+
+      - name: Upload coverage report
+        if: matrix.php-version == '8.3'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage.xml
+          retention-days: 7
