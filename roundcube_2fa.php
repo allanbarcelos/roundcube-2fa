@@ -116,6 +116,11 @@ class roundcube_2fa extends rcube_plugin
     function verify_and_enable()
     {
         $rcmail = rcube::get_instance();
+        if (!rcube_utils::check_request_token()) {
+            $rcmail->output->show_message('Invalid request', 'error');
+            $this->settings_page();
+            return;
+        }
         $code = rcube_utils::get_input_value('_code', rcube_utils::INPUT_POST);
         $secret = $_SESSION['2fa_tmp_secret'];
 
@@ -139,13 +144,19 @@ class roundcube_2fa extends rcube_plugin
 
     function disable()
     {
+        $rcmail = rcube::get_instance();
+        if (!rcube_utils::check_request_token()) {
+            $rcmail->output->show_message('Invalid request', 'error');
+            $this->settings_page();
+            return;
+        }
         $this->update_user([
             'twofa_enabled' => 0,
             'twofa_secret' => null,
             'twofa_backup_codes' => null
         ]);
-        rcube::get_instance()->output->show_message($this->gettext('2fa_disabled_success'), 'confirmation');
-        rcube_utils::redirect(['_task' => 'settings', '_action' => 'preferences', '_section' => '2fa_section']);
+        $rcmail->output->show_message($this->gettext('2fa_disabled_success'), 'confirmation');
+        $this->settings_page();
     }
 
     function settings_page() {
@@ -185,7 +196,7 @@ class roundcube_2fa extends rcube_plugin
     function generate_backup_codes()
     {
         $codes = [];
-        for ($i = 0; $i < 6; $i++) $codes[] = strval(rand(100000, 999999));
+        for ($i = 0; $i < 6; $i++) $codes[] = strval(random_int(100000, 999999));
         return $codes;
     }
 

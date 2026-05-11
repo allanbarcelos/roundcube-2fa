@@ -2,6 +2,7 @@
 <img src="<?= $qr ?>" alt="QR Code"/>
 <p><?= $this->gettext('roundcube_2fa_scan_qr') ?></p>
 <form method="post" action="?_task=settings&_action=plugin.roundcube_2fa-verify">
+    <input type="hidden" name="_token" value="<?= rcube::get_instance()->get_request_token() ?>">
     <input type="text" name="_code" placeholder="<?= $this->gettext('roundcube_2fa_code_label') ?>">
     <button type="submit"><?= $this->gettext('roundcube_2fa_confirm') ?></button>
 </form>
