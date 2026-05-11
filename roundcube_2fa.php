@@ -1,5 +1,10 @@
 <?php
-require_once __DIR__ . '/vendor/autoload.php';
+// Load local vendor only when installed standalone (dev/manual).
+// When installed via `composer require` from the Roundcube root, dependencies
+// are merged into the main vendor/ and the autoloader is already active.
+if (file_exists(__DIR__ . '/vendor/autoload.php')) {
+    require_once __DIR__ . '/vendor/autoload.php';
+}
 
 use Endroid\QrCode\Builder\Builder;
 use OTPHP\TOTP;

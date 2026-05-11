@@ -1,10 +1,11 @@
 {
-    "name": "allanbarcelos/roundcube-2fa",
+    "name": "allanbarcelos/roundcube_2fa",
     "description": "Two-factor authentication (2FA/TOTP) plugin for Roundcube, compatible with Google Authenticator, Microsoft Authenticator and other TOTP apps.",
     "type": "roundcube-plugin",
     "license": "MIT",
     "require": {
         "php": ">=7.4",
+        "roundcube/plugin-installer": "~0.1.6 || ~0.2",
         "endroid/qr-code": "^4.0",
         "spomky-labs/otphp": "^11.0"
     },

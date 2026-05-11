@@ -50,48 +50,54 @@ A two-factor authentication (2FA) plugin for [Roundcube](https://roundcube.net/)
 
 ### Option A — Composer (recommended)
 
-From your Roundcube root directory:
+Run the following command from your **Roundcube root directory**:
 
 ```bash
-composer require allanbarcelos/roundcube-2fa
+composer require allanbarcelos/roundcube_2fa
 ```
+
+Composer will download the plugin into `plugins/roundcube_2fa/` and merge all dependencies into the main `vendor/` directory automatically.
 
 ### Option B — Manual
 
 ```bash
 cd /path/to/roundcube/plugins
-git clone https://github.com/allanbarcelos/roundcube-2fa
-cd roundcube-2fa
+git clone https://github.com/allanbarcelos/roundcube-2fa roundcube_2fa
+cd roundcube_2fa
 composer install --no-dev --optimize-autoloader
 ```
 
+> The target directory **must** be named `roundcube_2fa` (with underscore). Roundcube uses the directory name to locate the plugin class.
+
 ### Enable the plugin
 
-Add `roundcube-2fa` to the plugins list in `config/config.inc.php`:
+Add `roundcube_2fa` to the plugins list in `config/config.inc.php`:
 
 ```php
-$config['plugins'] = ['roundcube-2fa'];
+$config['plugins'] = ['roundcube_2fa'];
 ```
+
+That's it. The plugin activates on next page load and creates its database table automatically on first use.
 
 ---
 
 ## Database Setup
 
-The plugin **automatically creates** its own table (`roundcube_2fa`) on first use — no manual step required for standard installations.
+The plugin **automatically creates** its own `roundcube_2fa` table on first use — no manual step required for standard installations.
 
 ### Manual setup
 
-If you prefer to create the table yourself, or if you use a restricted database user, run the file matching your database engine from the `SQL/` directory:
+If you prefer to create the table yourself, or if your database user lacks `CREATE TABLE` privileges, run the file that matches your database engine from the `SQL/` directory:
 
 ```bash
 # MySQL / MariaDB
-mysql -u <user> -p <database> < plugins/roundcube-2fa/SQL/mysql.initial.sql
+mysql -u <user> -p <database> < plugins/roundcube_2fa/SQL/mysql.initial.sql
 
 # PostgreSQL
-psql -U <user> <database> < plugins/roundcube-2fa/SQL/pgsql.initial.sql
+psql -U <user> <database> < plugins/roundcube_2fa/SQL/pgsql.initial.sql
 
 # SQLite
-sqlite3 /path/to/roundcube.db < plugins/roundcube-2fa/SQL/sqlite.initial.sql
+sqlite3 /path/to/roundcube.db < plugins/roundcube_2fa/SQL/sqlite.initial.sql
 ```
 
 > **Table prefix:** If your Roundcube installation uses a table prefix (e.g. `rc_`), rename `roundcube_2fa` to `rc_roundcube_2fa` in the SQL file before running it. The plugin reads the prefix from your Roundcube configuration automatically.
@@ -145,7 +151,7 @@ If you no longer have access to your authenticator app, enter one of your backup
 
 ### Disabling 2FA
 
-Go to **Settings → Two Factor Authentication** and click **Disable 2FA**. You will be asked to confirm. This action immediately revokes the TOTP secret and all remaining backup codes.
+Go to **Settings → Two Factor Authentication** and click **Disable 2FA**. This action immediately revokes the TOTP secret and all remaining backup codes.
 
 ---
 
@@ -154,7 +160,7 @@ Go to **Settings → Two Factor Authentication** and click **Disable 2FA**. You 
 - **TOTP secrets** are stored in a dedicated `roundcube_2fa` table, isolated from the Roundcube core `users` table.
 - **Backup codes** are generated with `random_int()` (CSPRNG) and stored in the database. Each code is deleted after use.
 - **CSRF tokens** are validated on all state-changing actions (enable, disable).
-- **Session-based credential relay:** credentials are stored in the server-side session during the 2FA step and never exposed in the HTML. The session entry expires after 5 minutes.
+- **Session-based credential relay:** credentials are held in the server-side session during the 2FA step and never exposed in HTML. The session entry expires after 5 minutes.
 - **HTTPS is strongly recommended.** Without it, TOTP codes transmitted over the network can be intercepted.
 
 ---
@@ -162,7 +168,7 @@ Go to **Settings → Two Factor Authentication** and click **Disable 2FA**. You 
 ## Troubleshooting
 
 **The 2FA option does not appear in Settings.**
-Verify that `roundcube-2fa` is listed in `$config['plugins']` and that `composer install` has been run inside the plugin directory.
+Verify that `roundcube_2fa` is listed in `$config['plugins']` and that the plugin directory is named exactly `roundcube_2fa`. If installed via Composer, confirm that `composer require` was run from the Roundcube root.
 
 **"Invalid code" even with the correct TOTP code.**
 TOTP is time-sensitive. Ensure the server clock is synchronized (e.g. via NTP). A drift of more than 30 seconds will cause verification to fail.
