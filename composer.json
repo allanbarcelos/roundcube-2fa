@@ -18,6 +18,11 @@
     "require-dev": {
         "phpunit/phpunit": "^10.5 || ^11.0"
     },
+    "config": {
+        "allow-plugins": {
+            "roundcube/plugin-installer": true
+        }
+    },
     "authors": [
         {
             "name": "Allan Barcelos",
