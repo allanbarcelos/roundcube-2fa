@@ -1,7 +1,7 @@
 <h2><?= $this->gettext('roundcube_2fa_setup_title') ?></h2>
 <img src="<?= $qr ?>" alt="QR Code"/>
 <p><?= $this->gettext('roundcube_2fa_scan_qr') ?></p>
-<form method="post">
-    <input type="text" name="code" placeholder="<?= $this->gettext('roundcube_2fa_code_label') ?>">
-    <button><?= $this->gettext('roundcube_2fa_confirm') ?></button>
+<form method="post" action="?_task=settings&_action=plugin.roundcube_2fa-verify">
+    <input type="text" name="_code" placeholder="<?= $this->gettext('roundcube_2fa_code_label') ?>">
+    <button type="submit"><?= $this->gettext('roundcube_2fa_confirm') ?></button>
 </form>

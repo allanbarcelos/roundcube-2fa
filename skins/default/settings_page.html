@@ -1,0 +1,23 @@
+<h2><?= $this->gettext('roundcube_2fa_title') ?></h2>
+
+<?php if (!empty($two_fa_enabled)): ?>
+    <p><?= $this->gettext('2fa_status_enabled') ?></p>
+
+    <?php if (!empty($two_fa_backup_codes)): ?>
+    <div class="backup-codes">
+        <p><strong><?= $this->gettext('2fa_backup_codes_label') ?></strong></p>
+        <ul>
+            <?php foreach ($two_fa_backup_codes as $code): ?>
+            <li><?= htmlspecialchars($code) ?></li>
+            <?php endforeach; ?>
+        </ul>
+    </div>
+    <?php endif; ?>
+
+    <form method="post" action="?_task=settings&_action=plugin.roundcube_2fa-disable">
+        <button type="submit"><?= $this->gettext('2fa_disable_btn') ?></button>
+    </form>
+<?php else: ?>
+    <p><?= $this->gettext('2fa_status_disabled') ?></p>
+    <a href="?_task=settings&_action=plugin.roundcube_2fa-setup"><?= $this->gettext('2fa_setup_btn') ?></a>
+<?php endif; ?>

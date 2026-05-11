@@ -6,7 +6,7 @@ use OTPHP\TOTP;
 
 class roundcube_2fa extends rcube_plugin
 {
-    public $task = 'settings';
+    public $task = '*';
 
     function init()
     {
@@ -36,7 +36,7 @@ class roundcube_2fa extends rcube_plugin
     {
         // register as settings action
         $args['actions'][] = [
-            'action' => 'roundcube_2fa',
+            'action' => 'plugin.roundcube_2fa',
             'class'  => 'roundcube_2fa',
             'label'  => 'roundcube_2fa',
             'title'  => 'roundcube_2fa_title',
@@ -105,13 +105,14 @@ class roundcube_2fa extends rcube_plugin
                 'twofa_secret' => $secret,
                 'twofa_backup_codes' => json_encode($backup_codes)
             ]);
-            unset($_SESSION['2fa_tmp_secret']);            
+            unset($_SESSION['2fa_tmp_secret']);
+            $rcmail->output->assign('two_fa_backup_codes', $backup_codes);
             $rcmail->output->show_message($this->gettext('2fa_enabled_success'), 'confirmation');
         } else {
             $rcmail->output->show_message($this->gettext('invalid_verification_code'), 'error');
         }
-        
-        $rcmail->overwrite_action('plugin.roundcube_2fa-settings');
+
+        $rcmail->overwrite_action('plugin.roundcube_2fa');
         $this->settings_page();
     }
 
@@ -128,7 +129,9 @@ class roundcube_2fa extends rcube_plugin
 
     function settings_page() {
         $rcmail = rcube::get_instance();
-        $rcmail->output->send('roundcube_2fa');
+        $data = $this->get_user_data($rcmail->get_user_name());
+        $rcmail->output->assign('two_fa_enabled', !empty($data['twofa_enabled']));
+        $rcmail->output->send('settings_page');
     }
 
 
