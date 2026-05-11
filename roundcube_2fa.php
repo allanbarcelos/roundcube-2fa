@@ -27,7 +27,10 @@ class roundcube_2fa extends rcube_plugin
         $this->register_action('plugin.roundcube_2fa-disable', [$this, 'disable']);
         $this->register_action('plugin.roundcube_2fa-settings', [$this, 'settings_page']);
 
-        $this->setup_database();
+        if (empty($_SESSION['2fa_db_ready'])) {
+            $this->setup_database();
+            $_SESSION['2fa_db_ready'] = true;
+        }
     }
 
     /* ================= SEÇÃO DE CONFIGURAÇÕES ================= */
@@ -176,16 +179,17 @@ class roundcube_2fa extends rcube_plugin
 
     function get_qr($user, $secret)
     {
+        $rcmail = rcube::get_instance();
+        $issuer = $rcmail->config->get('roundcube_2fa_issuer', 'Roundcube');
+        $size   = (int) $rcmail->config->get('roundcube_2fa_qr_size', 200);
+
         $totp = TOTP::create($secret);
         $totp->setLabel($user);
-        $totp->setIssuer('Roundcube');
+        $totp->setIssuer($issuer);
 
-        $url = $totp->getProvisioningUri();
-
-        // Gera QR code como data-uri
         $result = Builder::create()
-            ->data($url)
-            ->size(200)
+            ->data($totp->getProvisioningUri())
+            ->size($size)
             ->margin(10)
             ->build();
 
