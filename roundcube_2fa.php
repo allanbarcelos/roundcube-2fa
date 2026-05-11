@@ -50,33 +50,54 @@ class roundcube_2fa extends rcube_plugin
     function check_2fa($args)
     {
         $rcmail = rcube::get_instance();
-        $user = $args['user'];
+        $code   = isset($_POST['roundcube_2fa_code']) ? trim($_POST['roundcube_2fa_code']) : '';
 
-        $data = $this->get_user_data($user);
-        if (!$data || !$data['twofa_enabled']) return $args;
+        // Segunda submissão: retoma credenciais da sessão
+        if ($code !== '' && !empty($_SESSION['2fa_pending'])) {
+            $pending = $_SESSION['2fa_pending'];
 
-        // Se o token não foi enviado ainda
-        if (empty($_POST['roundcube_2fa_code'])) {
-            $this->show_form();
+            // Sessão expirou (mais de 5 minutos)
+            if (time() - $pending['ts'] > 300) {
+                unset($_SESSION['2fa_pending']);
+                $this->show_login_form($args['user']);
+                exit;
+            }
+
+            $data = $this->get_user_data($pending['user']);
+
+            if ($this->verify_totp($data['twofa_secret'], $code) || $this->verify_backup($code, $data)) {
+                unset($_SESSION['2fa_pending']);
+                $args['user'] = $pending['user'];
+                $args['pass'] = $pending['pass'];
+                return $args;
+            }
+
+            $rcmail->output->show_message($this->gettext('roundcube_2fa_invalid'), 'error');
+            $this->show_login_form($pending['user']);
             exit;
         }
 
-        if ($this->verify_totp($data['twofa_secret'], $_POST['roundcube_2fa_code'])) {
-            return $args;
-        }
+        // Primeira submissão: verifica se o usuário tem 2FA ativo
+        $user = $args['user'];
+        $data = $this->get_user_data($user);
+        if (!$data || !$data['twofa_enabled']) return $args;
 
-        if ($this->verify_backup($_POST['roundcube_2fa_code'], $data)) {
-            return $args;
-        }
+        // Armazena credenciais na sessão e exibe formulário 2FA
+        $_SESSION['2fa_pending'] = [
+            'user' => $args['user'],
+            'pass' => $args['pass'],
+            'ts'   => time(),
+        ];
 
-        $rcmail->output->show_message($this->gettext('roundcube_2fa_invalid'), 'error');
-        $this->show_form();
+        $this->show_login_form($args['user']);
         exit;
     }
 
-    function show_form()
+    function show_login_form($username = '')
     {
-        rcube::get_instance()->output->send('roundcube_2fa');
+        $rcmail = rcube::get_instance();
+        $rcmail->output->assign('two_fa_username', htmlspecialchars($username));
+        $rcmail->output->send('roundcube_2fa');
     }
 
     /* ================= SETUP ================= */
